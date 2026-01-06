@@ -3,76 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>云端价格查询</title>
+    <title>价格查询系统</title>
     <style>
-        :root { --main: #007aff; --bg: #f2f2f7; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; }
+        body { font-family: sans-serif; background: #f2f2f7; margin: 0; padding: 15px; }
         .search-box { position: sticky; top: 10px; z-index: 100; margin-bottom: 20px; }
-        input { width: 100%; padding: 15px 20px; border-radius: 15px; border: 2px solid var(--main); font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); outline: none; box-sizing: border-box; }
-        #list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-        .card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; }
-        /* 图片样式固定 */
-        .card img { width: 100%; height: 150px; object-fit: cover; display: block; background: #eee; }
-        .info { padding: 10px; }
-        .name { font-weight: bold; font-size: 14px; color: #333; height: 38px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.4; }
-        .price { color: #ff3b30; font-size: 20px; font-weight: bold; margin-top: 5px; }
-        #viewer { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; justify-content:center; align-items:center; }
+        input { width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #007aff; font-size: 16px; box-sizing: border-box; }
+        #list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+        .card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding-bottom: 10px; text-align: center;}
+        /* 强制图片显示 */
+        .card img { width: 100%; height: 140px; object-fit: cover; display: block !important; background: #ddd; }
+        .name { font-size: 14px; font-weight: bold; padding: 5px; height: 32px; overflow: hidden; }
+        .price { color: red; font-size: 18px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="search-box">
-        <input type="text" id="kw" placeholder="🔍 输入搜索内容..." oninput="doSearch()">
+        <input type="text" id="kw" placeholder="输入名称搜索..." oninput="doSearch()">
     </div>
 
     <div id="list"></div>
 
-    <div id="viewer" onclick="this.style.display='none'">
-        < img id="vImg" style="max-width:98%; max-height:98%">
-    </div>
-
     <script>
-        // ======= 数据粘贴区（直接粘贴你原本干净的数据） =======
+        // ======= 数据区 =======
+        // 确认你的数据是这种：{ n: "名字", a: "缩写", p: "价格", img: "001.jpg" }
         const itemData = [
-            { n: "110排水管A（4m）", a: "110管", p: "40", img: "001.jpg" },
-            { n: "110三通", a: "110正三通", p: "10", img: "002.jpg" },
-            { n: "110弯头", a: "90度弯", p: "6", img: "003.jpg" }
-            // ... 粘贴剩下的数据
+            { n: "110排水管A (4m)", a: "psg", p: "40", img: "001.jpg" },
+            { n: "110三通", a: "st", p: "10", img: "002.jpg" },
+            { n: "110弯头", a: "wt", p: "6", img: "003.jpg" }
+            // 在这里贴入你那1000行
         ];
 
-        // 默认显示前12条
-        window.onload = () => render(itemData.slice(0, 12));
+        // 页面加载完立即显示
+        window.onload = function() {
+            doSearch(); 
+        };
 
         function doSearch() {
-            const key = document.getElementById('kw').value.toLowerCase().trim();
-            if (!key) { render(itemData.slice(0, 12)); return; }
-            // 简单直接的过滤逻辑
-            const res = itemData.filter(i => i.n.includes(key) || i.a.includes(key));
-            render(res);
+            const key = document.getElementById('kw').value.toLowerCase();
+            // 如果没搜，默认看前20个；搜了就看搜索结果
+            const filtered = key ? itemData.filter(i => i.n.includes(key) || i.a.includes(key)) : itemData.slice(0, 20);
+            render(filtered);
         }
 
         function render(data) {
             const listDiv = document.getElementById('list');
-            if (data.length === 0) {
-                listDiv.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">未找到商品</p >';
-                return;
-            }
+            listDiv.innerHTML = ""; // 先清空
 
-            // 直接拼接 HTML，不带任何多余的判断
-            listDiv.innerHTML = data.map(i => `
-                <div class="card" onclick="showFull('${i.img}')">
-                    < img src="${i.img}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
-                    <div class="info">
-                        <div class="name">${i.n}</div>
-                        <div class="price">¥${i.p}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
+            data.forEach(function(item) {
+                // 1. 创建卡片盒子
+                var card = document.createElement('div');
+                card.className = 'card';
 
-        function showFull(src) {
-            document.getElementById('vImg').src = src;
-            document.getElementById('viewer').style.display = 'flex';
+                // 2. 创建图片元素 (这是最稳妥的办法，直接创建对象，绝不会变成文字)
+                var image = document.createElement('img');
+                // 确保数据里的图片名没有多余的空格
+                var cleanImgPath = item.img.trim(); 
+                image.src = cleanImgPath;
+                image.onerror = function() { this.src = 'https://via.placeholder.com/150?text=No+Image'; };
+
+                // 3. 创建文字信息
+                var info = document.createElement('div');
+                info.innerHTML = '<div class="name">' + item.n + '</div><div class="price">¥' + item.p + '</div>';
+
+                // 4. 组合起来
+                card.appendChild(image);
+                card.appendChild(info);
+                listDiv.appendChild(card);
+            });
         }
     </script>
 </body>
