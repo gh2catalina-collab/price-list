@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>价格查询系统</title>
     <style>
         :root { --main: #007aff; --bg: #f2f2f7; }
@@ -21,14 +21,23 @@
         .alias { font-size: 14px; color: #555; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
         .price { color: #ff3b30; font-size: 22px; font-weight: bold; display: block; }
 
-        /* 动态生成的放大层样式 */
+        /* 优化后的全屏预览样式 */
         .dynamic-viewer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 99999; 
-            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            background: #000; /* 纯黑底色 */
+            z-index: 99999; 
+            display: flex; justify-content: center; align-items: center;
         }
-        .dynamic-viewer img { max-width: 95%; max-height: 85%; object-fit: contain; border: 2px solid #fff; }
-        .dynamic-viewer .tip { color: #fff; margin-top: 20px; border: 1px solid #fff; padding: 5px 15px; border-radius: 20px; font-size: 14px; }
+        /* 图片取消边框，宽度撑满 */
+        .dynamic-viewer img { 
+            width: 100%; 
+            max-height: 100%; 
+            object-fit: contain; /* 确保长图也能完整显示 */
+        }
+        .close-btn {
+            position: absolute; top: 20px; right: 20px; color: #fff;
+            background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -360,7 +369,6 @@
             data.forEach(function(item) {
                 var card = document.createElement('div');
                 card.className = 'card';
-                // 点击直接触发动态创建
                 card.onclick = function() { createViewer(item.img); };
 
                 var wrap = document.createElement('div');
@@ -379,27 +387,23 @@
             });
         }
 
-        // --- 核心改动：动态创建预览层，不依赖 HTML 里的 ID ---
         function createViewer(src) {
             if(!src) return;
-
-            // 1. 创建背景层
             const div = document.createElement('div');
             div.className = 'dynamic-viewer';
+            
+            // 点击图片或背景都关闭
             div.onclick = function() { document.body.removeChild(div); };
 
-            // 2. 创建图片
             const img = document.createElement('img');
             img.src = src;
 
-            // 3. 创建提示文字
-            const tip = document.createElement('div');
-            tip.className = 'tip';
-            tip.innerText = '点击屏幕关闭';
+            const btn = document.createElement('div');
+            btn.className = 'close-btn';
+            btn.innerText = '返回';
 
-            // 4. 组装并添加到页面
             div.appendChild(img);
-            div.appendChild(tip);
+            div.appendChild(btn);
             document.body.appendChild(div);
         }
     </script>
