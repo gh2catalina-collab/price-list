@@ -3,32 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>我的云端报价系统</title>
+    <title>云端价格查询系统</title>
     <style>
         :root { --main: #007aff; --bg: #f2f2f7; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; }
+        /* 搜索框样式 */
         .search-box { position: sticky; top: 10px; z-index: 100; margin-bottom: 20px; }
-        input { width: 100%; padding: 15px 20px; border-radius: 20px; border: none; font-size: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); outline: none; box-sizing: border-box; }
-        #list { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-        .card { background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: 0.2s; }
-        .card img { width: 100%; height: 150px; object-fit: cover; background: #eee; }
+        input { width: 100%; padding: 15px 20px; border-radius: 15px; border: 2px solid var(--main); font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); outline: none; box-sizing: border-box; }
+        /* 列表布局 */
+        #list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+        .card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .card img { width: 100%; height: 140px; object-fit: cover; background: #eee; display: block; }
         .info { padding: 10px; }
-        .name { font-weight: 600; font-size: 15px; color: #333; height: 40px; overflow: hidden; }
-        .price { color: #ff3b30; font-size: 20px; font-weight: bold; margin-top: 5px; }
-        .p-unit { font-size: 12px; font-weight: normal; margin-right: 2px; }
+        .name { font-weight: bold; font-size: 14px; color: #333; height: 38px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .price { color: #ff3b30; font-size: 18px; font-weight: bold; margin-top: 5px; }
         /* 放大预览 */
         #viewer { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; justify-content:center; align-items:center; }
-    </script>
+    </style>
 </head>
 <body>
-    <div class="search-box"><input type="text" id="kw" placeholder="输入名称或拼音首字母查询..." oninput="doSearch()"></div>
-    <div id="list"></div>
-    <div id="viewer" onclick="this.style.display='none'">< img id="vImg" style="max-width:100%; max-height:100%"></div>
+
+    <div class="search-box">
+        <input type="text" id="kw" placeholder="🔍 输入商品名或首字母(如: wt)..." oninput="doSearch()">
+    </div>
+
+    <div id="list">
+        </div>
+
+    <div id="viewer" onclick="this.style.display='none'">
+        < img id="vImg" style="max-width:98%; max-height:98%">
+    </div>
 
     <script>
-        // ======= 数据粘贴区：把 Excel 生成的内容贴在下面方括号内 =======
+        // 【数据粘贴区】
         const itemData = [
-          { n: "110排水管A（4m）", a: "110管", p: "40", img: "001.jpg" },
+           { n: "110排水管A（4m）", a: "110管", p: "40", img: "001.jpg" },
 { n: "110三通", a: "110正三通", p: "10", img: "002.jpg" },
 { n: "110弯头", a: "90度弯", p: "6", img: "003.jpg" },
 { n: "110直接", a: "110直通", p: "5", img: "004.jpg" },
@@ -329,27 +338,39 @@
 { n: "不锈钢内丝三通", a: "", p: "8", img: "299.jpg" },
 { n: "不锈钢内丝弯", a: "", p: "6", img: "300.jpg" },
 { n: "铜内丝三通", a: "", p: "10", img: "301.jpg" },
-{ n: "铜内丝弯", a: "", p: "8", img: "302.jpg" },
+{ n: "铜内丝弯", a: "", p: "8", img: "302.jpg" }];
 
-        ];
-        // ========================================================
+        // 初始运行：显示前 10 个，让页面不空白
+        window.onload = function() {
+            render(itemData.slice(0, 10));
+        };
 
         function doSearch() {
             const key = document.getElementById('kw').value.toLowerCase().trim();
             const listDiv = document.getElementById('list');
-            if (!key) { listDiv.innerHTML = ''; return; }
+            
+            if (!key) {
+                render(itemData.slice(0, 10)); // 清空搜索框时显示前 10 个
+                return;
+            }
+            
+            // 搜索名称(n)或别名(a)
             const res = itemData.filter(i => i.n.includes(key) || i.a.includes(key));
             render(res);
         }
 
         function render(data) {
             const listDiv = document.getElementById('list');
+            if (data.length === 0) {
+                listDiv.innerHTML = '<p style="text-align:center; color:#999; grid-column: 1/-1;">没找到匹配商品</p >';
+                return;
+            }
             listDiv.innerHTML = data.map(i => `
                 <div class="card" onclick="showFull('${i.img}')">
-                    < img src="${i.img}" loading="lazy">
+                    < img src="${i.img}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
                     <div class="info">
                         <div class="name">${i.n}</div>
-                        <div class="price"><span class="p-unit">¥</span>${i.p}</div>
+                        <div class="price">¥${i.p}</div>
                     </div>
                 </div>
             `).join('');
