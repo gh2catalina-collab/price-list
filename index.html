@@ -5,28 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>价格查询系统</title>
     <style>
-        body { font-family: sans-serif; background: #f2f2f7; margin: 0; padding: 15px; }
-        .search-box { position: sticky; top: 10px; z-index: 100; margin-bottom: 20px; }
-        input { width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #007aff; font-size: 16px; box-sizing: border-box; }
-        #list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
-        .card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding-bottom: 10px; text-align: center;}
-        /* 强制图片显示 */
-        .card img { width: 100%; height: 140px; object-fit: cover; display: block !important; background: #ddd; }
-        .name { font-size: 14px; font-weight: bold; padding: 5px; height: 32px; overflow: hidden; }
-        .price { color: red; font-size: 18px; font-weight: bold; }
+        :root { --main: #007aff; --bg: #f2f2f7; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; }
+        .search-box { position: sticky; top: 10px; z-index: 1000; margin-bottom: 20px; }
+        input { width: 100%; padding: 15px 20px; border-radius: 12px; border: 2px solid var(--main); font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); outline: none; box-sizing: border-box; }
+        
+        #list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+        .card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; cursor: pointer; }
+        
+        .img-wrap { width: 100%; height: 150px; background: #eee; overflow: hidden; }
+        .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        
+        .info { padding: 12px; flex: 1; }
+        .name { font-weight: bold; font-size: 15px; color: #333; line-height: 1.4; margin-bottom: 6px; }
+        .alias { font-size: 14px; color: #555; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+        .price { color: #ff3b30; font-size: 22px; font-weight: bold; display: block; }
+
+        /* 动态生成的放大层样式 */
+        .dynamic-viewer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 99999; 
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+        }
+        .dynamic-viewer img { max-width: 95%; max-height: 85%; object-fit: contain; border: 2px solid #fff; }
+        .dynamic-viewer .tip { color: #fff; margin-top: 20px; border: 1px solid #fff; padding: 5px 15px; border-radius: 20px; font-size: 14px; }
     </style>
 </head>
 <body>
 
     <div class="search-box">
-        <input type="text" id="kw" placeholder="输入名称搜索..." oninput="doSearch()">
+        <input type="text" id="kw" placeholder="🔍 输入搜索内容..." oninput="doSearch()">
     </div>
 
     <div id="list"></div>
 
     <script>
-        // ======= 数据区 =======
-        // 确认你的数据是这种：{ n: "名字", a: "缩写", p: "价格", img: "001.jpg" }
         const itemData = [
             { n: "110排水管A（4m）", a: "110管", p: "40", img: "001.jpg" },
 { n: "110三通", a: "110正三通", p: "10", img: "002.jpg" },
@@ -333,43 +346,61 @@
 
         ];
 
-        // 页面加载完立即显示
-        window.onload = function() {
-            doSearch(); 
-        };
+        window.onload = function() { doSearch(); };
 
         function doSearch() {
-            const key = document.getElementById('kw').value.toLowerCase();
-            // 如果没搜，默认看前20个；搜了就看搜索结果
+            const key = document.getElementById('kw').value.toLowerCase().trim();
             const filtered = key ? itemData.filter(i => i.n.includes(key) || i.a.includes(key)) : itemData.slice(0, 1);
             render(filtered);
         }
 
         function render(data) {
             const listDiv = document.getElementById('list');
-            listDiv.innerHTML = ""; // 先清空
-
+            listDiv.innerHTML = ""; 
             data.forEach(function(item) {
-                // 1. 创建卡片盒子
                 var card = document.createElement('div');
                 card.className = 'card';
+                // 点击直接触发动态创建
+                card.onclick = function() { createViewer(item.img); };
 
-                // 2. 创建图片元素 (这是最稳妥的办法，直接创建对象，绝不会变成文字)
+                var wrap = document.createElement('div');
+                wrap.className = 'img-wrap';
                 var image = document.createElement('img');
-                // 确保数据里的图片名没有多余的空格
-                var cleanImgPath = item.img.trim(); 
-                image.src = cleanImgPath;
-                image.onerror = function() { this.src = 'https://via.placeholder.com/150?text=No+Image'; };
+                image.src = item.img;
+                image.onerror = function() { this.src = 'https://via.placeholder.com/150?text=图缺失'; };
+                wrap.appendChild(image);
 
-                // 3. 创建文字信息
                 var info = document.createElement('div');
-                info.innerHTML = '<div class="name">' + item.n + '</div><div class="price">¥' + item.p + '</div>';
-
-                // 4. 组合起来
-                card.appendChild(image);
+                info.className = 'info';
+                info.innerHTML = `<div class="name">${item.n}</div><div class="alias">别名: ${item.a}</div><div class="price">¥${item.p}</div>`;
+                card.appendChild(wrap);
                 card.appendChild(info);
                 listDiv.appendChild(card);
             });
+        }
+
+        // --- 核心改动：动态创建预览层，不依赖 HTML 里的 ID ---
+        function createViewer(src) {
+            if(!src) return;
+
+            // 1. 创建背景层
+            const div = document.createElement('div');
+            div.className = 'dynamic-viewer';
+            div.onclick = function() { document.body.removeChild(div); };
+
+            // 2. 创建图片
+            const img = document.createElement('img');
+            img.src = src;
+
+            // 3. 创建提示文字
+            const tip = document.createElement('div');
+            tip.className = 'tip';
+            tip.innerText = '点击屏幕关闭';
+
+            // 4. 组装并添加到页面
+            div.appendChild(img);
+            div.appendChild(tip);
+            document.body.appendChild(div);
         }
     </script>
 </body>
