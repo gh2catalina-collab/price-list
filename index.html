@@ -390,24 +390,29 @@
             data.forEach(function(item) {
                 var card = document.createElement('div');
                 card.className = 'card';
-                card.onclick = function() { createViewer(giteeBase + item.img); };
+                
+                // 放大图片逻辑也改为：如果点击时还没加载出 Gitee，就传当前图的 src
+                var image = document.createElement('img');
+                card.onclick = function() { createViewer(image.src); };
 
                 var wrap = document.createElement('div');
                 wrap.className = 'img-wrap';
-                var image = document.createElement('img');
                 
-                // 1. 默认优先尝试加载 Gitee 的图片
+                // 重点：使用一个变量记录是否已经切换过
+                let isUsingBackup = false;
+
+                // 1. 初始地址设为 Gitee
                 image.src = giteeBase + item.img;
-                
-                // 2. 如果 Gitee 加载失败（onerror），切换到 GitHub 本地路径
+
                 image.onerror = function() {
-                    if (this.src !== githubBase + item.img) {
-                        console.log("Gitee 加载失败，正在尝试 GitHub 备用路径...");
-                        this.src = githubBase + item.img;
+                    if (!isUsingBackup) {
+                        console.log("Gitee 失败，切换到 GitHub:", item.img);
+                        isUsingBackup = true; // 标记已切换
+                        this.src = "./" + item.img; // 明确使用当前目录下的图片
                     } else {
-                        // 如果 GitHub 也失败了，显示占位图
-                        this.src = 'https://via.placeholder.com/150?text=图缺失';
-                        this.onerror = null; // 防止死循环
+                        // 如果连 GitHub 也挂了
+                        this.src = 'https://via.placeholder.com/150?text=图片丢失';
+                        this.onerror = null; 
                     }
                 };
 
