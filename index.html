@@ -380,18 +380,37 @@
         }
 
         function render(data) {
-            const listDiv = document.getElementById('list');
-            listDiv.innerHTML = ""; 
+             const listDiv = document.getElementById('list');
+             listDiv.innerHTML = ""; 
+    
+            // 配置你的 Gitee 和 GitHub 基础路径
+            const giteeBase = "https://gitee.com/jiumhg/price-images/raw/master/";
+            const githubBase = ""; // 如果图片就在本仓库根目录，留空即可
+
             data.forEach(function(item) {
                 var card = document.createElement('div');
                 card.className = 'card';
-                card.onclick = function() { createViewer(item.img); };
+                card.onclick = function() { createViewer(giteeBase + item.img); };
 
                 var wrap = document.createElement('div');
                 wrap.className = 'img-wrap';
                 var image = document.createElement('img');
-                image.src = item.img;
-                image.onerror = function() { this.src = 'https://via.placeholder.com/150?text=图缺失'; };
+                
+                // 1. 默认优先尝试加载 Gitee 的图片
+                image.src = giteeBase + item.img;
+                
+                // 2. 如果 Gitee 加载失败（onerror），切换到 GitHub 本地路径
+                image.onerror = function() {
+                    if (this.src !== githubBase + item.img) {
+                        console.log("Gitee 加载失败，正在尝试 GitHub 备用路径...");
+                        this.src = githubBase + item.img;
+                    } else {
+                        // 如果 GitHub 也失败了，显示占位图
+                        this.src = 'https://via.placeholder.com/150?text=图缺失';
+                        this.onerror = null; // 防止死循环
+                    }
+                };
+
                 wrap.appendChild(image);
 
                 var info = document.createElement('div');
@@ -407,12 +426,18 @@
             if(!src) return;
             const div = document.createElement('div');
             div.className = 'dynamic-viewer';
-            
-            // 点击图片或背景都关闭
             div.onclick = function() { document.body.removeChild(div); };
 
             const img = document.createElement('img');
             img.src = src;
+            
+            // 同样的报错自动切换逻辑
+            img.onerror = function() {
+                // 获取文件名（去掉 Gitee 路径部分）
+                const fileName = src.split('/').pop();
+                this.src = fileName; // 切换回 GitHub 本地相对路径
+                this.onerror = null;
+            };
 
             const btn = document.createElement('div');
             btn.className = 'close-btn';
@@ -421,7 +446,7 @@
             div.appendChild(img);
             div.appendChild(btn);
             document.body.appendChild(div);
-        }
+}
     </script>
 </body>
 </html>
