@@ -7,49 +7,32 @@
     <style>
         :root { --main: #007aff; --bg: #f2f2f7; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; }
-        .search-box {
-
-    /* 增加搜索框的外边距，让它在页面顶部更显眼 */
-
-    padding: 15px;
-
-    background: #fff;
-
-    position: sticky;
-
-    top: 0;
-
-    z-index: 100;
-
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-
+        input { 
+    width: 100%; 
+    /* 增加垂直 padding 使高度翻倍，水平 padding 保持或略增 */
+    padding: 30px 20px; 
+    border-radius: 12px; 
+    border: 2px solid var(--main); 
+    /* 字体大小翻倍至 32px */
+    font-size: 32px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+    outline: none; 
+    box-sizing: border-box; 
+    /* 针对手机端增加以下两行，效果更好 */
+    height: auto; 
+    line-height: 1.2; 
 }
 
-input {
-
-    width: 100%;
-
-    /* 增加高度：通过加大内边距来实现，这样文字会垂直居中 */
-
-    padding: 12px 20px; 
-
-    /* 加大字体：18px 或 20px 在手机上非常清晰 */
-
-    font-size: 20px; 
-
-    border: 2px solid #007bff;
-
-    border-radius: 25px;
-
-    outline: none;
-
-    /* 解决 iOS 手机输入框自带阴影的问题 */
-
-    -webkit-appearance: none; 
-
-    box-sizing: border-box;
-
+/* 调整搜索框容器的间距，防止大框太挤 */
+.search-box { 
+    position: sticky; 
+    top: 0; 
+    z-index: 1000; 
+    margin-bottom: 30px; 
+    background: #fff; /* 建议加上背景色，滚动时不会被下方内容穿透 */
+    padding: 10px 0;
 }
+
         
         #list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
         .card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; cursor: pointer; }
