@@ -133,7 +133,7 @@
 { n: "1寸变6分直接", a: "1变6直接（1X6直接）", p: "1", img: "057.jpg" },
 { n: "1寸变6分弯头", a: "1变6弯头（1X6弯头）", p: "1", img: "058.jpg" },
 { n: "1寸变6分三通", a: "1变6三通（1X6三通）", p: "2", img: "059.jpg" },
-{ n: "1寸外牙直接", a: "1寸外丝直接", p: "5", img: "060.jpg" },
+{ n: "1寸外牙直接", a: "1寸外丝直接", p: "1", img: "060.jpg" },
 { n: "1寸内丝三通", a: "1X6内丝三通", p: "5", img: "061.jpg" },
 { n: "1寸内丝直接", a: "", p: "5", img: "062.jpg" },
 { n: "1寸*4外牙", a: "1乘4外牙、1X4外牙", p: "1", img: "063.jpg" },
@@ -290,8 +290,8 @@
 { n: "3寸固定灰色TPR轮", a: "车轮", p: "21", img: "214.jpg" },
 { n: "2寸平底塑料双刹灰色TPR轮", a: "车轮", p: "18", img: "215.jpg" },
 { n: "2寸固定灰色TPR轮", a: "车轮", p: "15", img: "216.jpg" },
-{ n: "ppr-6分闸阀", a: "ppr-25闸阀", p: "25", img: "217.jpg" },
-{ n: "ppr-4分闸阀", a: "ppr-20闸阀", p: "20", img: "218.jpg" },
+{ n: "ppr-6分闸阀", a: "水制", p: "25", img: "217.jpg" },
+{ n: "ppr-4分闸阀", a: "水制", p: "20", img: "218.jpg" },
 { n: "洗衣机给水管", a: "", p: "30", img: "219.jpg" },
 { n: "花洒座", a: "", p: "3", img: "220.jpg" },
 { n: "不锈钢水龙头", a: "", p: "15", img: "221.jpg" },
@@ -362,7 +362,7 @@
 { n: "灯盘30W 斌翔", a: "", p: "22", img: "286.jpg" },
 { n: "感应灯泡", a: "感应球泡", p: "25", img: "287.jpg" },
 { n: "砂轮片2", a: "沙轮片、磨片", p: "2", img: "288.jpg" },
-{ n: "小型漏电开关", a: "", p: "30", img: "289.jpg" },
+{ n: "ppr6分外牙直接", a: "", p: "10", img: "289.jpg" },
 { n: "PE-40闸阀", a: "水制", p: "30", img: "290.jpg" },
 { n: "玻璃胶（瓷白）", a: "", p: "8", img: "291.jpg" },
 { n: "法兰钩（小）", a: "法兰勾、紧线器、收紧器", p: "8", img: "292.jpg" },
@@ -408,7 +408,10 @@
 { n: "电机缺相保护开关D63", a: "", p: "68", img: "332.jpg" },
 { n: "漏电开关D16带定时", a: "", p: "60", img: "333.jpg" },
 { n: "空开4 100A", a: "", p: "80", img: "334.jpg" },
-{ n: "闸刀63A", a: "", p: "38", img: "335.jpg" }
+{ n: "闸刀63A", a: "", p: "38", img: "335.jpg" },
+{ n: "ppr6分外牙弯头", a: "ppr6分外丝弯头", p: "10", img: "336.jpg" },
+{ n: "200直接（排水）", a: "", p: "18", img: "337.jpg" },
+{ n: "200弯头 90度（排水）", a: "", p: "38", img: "338.jpg" }
         ];
 
         window.onload = function() { doSearch(); };
@@ -424,7 +427,8 @@
              listDiv.innerHTML = ""; 
     
             // 配置你的 Gitee 和 GitHub 基础路径
-            const giteeBase = "https://gitee.com/jiumhg/price-images/raw/master/";
+            //const giteeBase = "https://gitee.com/jiumhg/price-images/raw/master/";
+	    const giteeBase = "";
             const githubBase = ""; // 如果图片就在本仓库根目录，留空即可
 
             data.forEach(function(item) {
